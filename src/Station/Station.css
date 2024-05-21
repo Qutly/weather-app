@@ -1,0 +1,18 @@
+.container-station {
+    display: flex;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.box-station { 
+    margin: 10px;
+    background-color: white;
+    min-width: 200px;
+    border-radius: 10px;
+    box-shadow: 1px;
+    padding: 10px;
+    margin-left: 1.5rem;
+}
+
+.box-station p {
+    margin: 5px 0; /* Add vertical margin between <p> tags */
+}

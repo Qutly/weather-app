@@ -1,0 +1,22 @@
+.station-formula input::placeholder {
+    font-family: "'Montserrat', sans-serif";
+    font-weight: 550;
+    color: #9a9a9a;
+    font-size: medium;
+    padding: 2px;
+}
+
+.station-formula input:focus{
+    outline: none;
+    font-family: "'Montserrat', sans-serif";
+    font-weight: 550;
+    color: black;
+    font-size: medium;
+}
+
+.station-formula input:not(:focus) {
+    font-family: "'Montserrat', sans-serif";
+    font-weight: 550;
+    color: black;
+    font-size: medium;
+}

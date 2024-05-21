@@ -1,0 +1,65 @@
+.top-buttons {
+    display: flex;
+    justify-content: flex-end; /* Przesunięcie przycisków do prawej strony */
+    padding: 10px;
+}
+
+.front-page-button {
+    color: white;
+    background-color: black;
+    border: none;
+    cursor: pointer;
+    border-radius: 8px;
+    padding: 15px;
+    margin-right: 20px;
+}
+
+.container-front-page { 
+    align-items: center; 
+    justify-content: center;
+    text-align: center; 
+    font-family: 'Montserrat', sans-serif;
+}
+
+.box {
+    width: 30%;
+    height: auto;
+    background-color: white;
+    border: none;
+    margin: 10px;
+    display: inline-block;
+    border-radius: 10px;
+    box-shadow: 1px;
+}
+
+.station-names {
+    margin-left: 20px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+}
+
+.main-content.blur {
+    filter: blur(5px);
+    pointer-events: none; 
+}
+
+.modal-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1; 
+}
+
+.modal-container {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    pointer-events: auto; 
+    z-index: 2;
+}
