@@ -89,7 +89,7 @@ export default function Stationformula() {
                 </div>
                 <div style={{ display: "flex", marginBottom: "1.5rem"  }}>
                     <label htmlFor="adres" style={{fontWeight: "550", color: "black",width: "100px" }}>Adres</label>
-                    <input onChange={handleChange} name="address" id="adres" placeholder="Adres" style={{ flex: "1",
+                    <input autocomplete="off" onChange={handleChange} name="address" id="adres" placeholder="Adres" style={{ flex: "1",
                                                                    border: "none",
                                                                    borderBottom: "1px solid black",
                                                                    background: "transparent",
@@ -97,7 +97,7 @@ export default function Stationformula() {
                 </div>
                 <div style={{ display: "flex", marginBottom: "1.5rem"  }}>
                     <label htmlFor="szerokosc" style={{fontWeight: "550", color: "black", width: "100px"}}>Koord X</label>
-                    <input onChange={handleChange} name="lat" id="szerokosc" placeholder="Szerokość" style={{ flex: "1",
+                    <input autocomplete="off" onChange={handleChange} name="lat" id="szerokosc" placeholder="Szerokość" style={{ flex: "1",
                                                                    border: "none",
                                                                    borderBottom: "1px solid black",
                                                                    background: "transparent",
@@ -105,7 +105,7 @@ export default function Stationformula() {
                 </div>
                 <div style={{ display: "flex", marginBottom: "1.5rem"  }}>
                     <label htmlFor="dlugosc" style={{fontWeight: "550", color: "black", width: "100px"}}>Koord Y</label>
-                    <input onChange={handleChange} name="long" id="dlugosc" placeholder="Długość" style={{ flex: "1",
+                    <input autocomplete="off" onChange={handleChange} name="long" id="dlugosc" placeholder="Długość" style={{ flex: "1",
                                                                    border: "none",
                                                                    borderBottom: "1px solid black",
                                                                    background: "transparent",

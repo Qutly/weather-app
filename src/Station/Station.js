@@ -23,9 +23,7 @@ ChartJS.register(
     Legend
 ) 
 
-const labels = ['0:00', '1:00', '2:00', '3:00', '4:00', '5:00', '6:00', '7:00', '8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00'];
-
-export default function Station({ stationId, stationName }) {
+export default function Station({ stationId, stationName, stationCity }) {
 
     const ctx = useContext(myContext);
 
@@ -35,6 +33,8 @@ export default function Station({ stationId, stationName }) {
         humidity: [],
         pressure: []
     }) 
+    const [arrLabels, setArrLabels] = useState([]);
+    const [error, setError] = useState(false);
 
     const isSameDate = (date1) => {
 
@@ -46,76 +46,14 @@ export default function Station({ stationId, stationName }) {
          date1.getUTCDate() === date2.getUTCDate();
     }
 
-    useEffect(() => {
-        axios.post("http://localhost:5001/get_measurement", {
-            id: stationId
-        }, {
-            withCredentials: true
-        }).then((res) => {
-            if(res.status === 200) {
-                
-                const filteredTemperature = [];
-                const filteredHumidity = [];
-                const filteredPressure = [];
+    const getTime = (dataString) => {
+        const newDate = new Date(dataString);
+        const hours = String(newDate.getUTCHours()).padStart(2, '0');
+        const minutes = String(newDate.getUTCMinutes()).padStart(2, '0');
 
-                res.data.forEach((item) => {
-                    if (isSameDate(item.Czas)) {
-                        filteredTemperature.push(item.Temperatura);
-                        filteredHumidity.push(item.Wilgotność);
-                        filteredPressure.push(item.Ciśnienie);
-                    }
-                });
+        return hours + ":" + minutes;
+    }
 
-                setDatasets({
-                    temperature: filteredTemperature,
-                    humidity: filteredHumidity,
-                    pressure: filteredPressure
-                });
-
-                setDataStation(res.data);
-            }
-        })
-    }, [])
-
-    const dataTemperature = {
-        labels: labels,
-        datasets: [
-          {
-            label: 'Temperatura',
-            data: datasets.temperature, 
-            fill: false,
-            borderColor: 'rgb(75, 192, 192)',
-            tension: 0.1
-          }
-        ]
-    };
-
-    const dataHumidity = {
-        labels: labels,
-        datasets: [
-          {
-            label: 'Wilgotność',
-            data: datasets.humidity, 
-            fill: false,
-            borderColor: 'rgb(75, 192, 192)',
-            tension: 0.1
-          }
-        ]
-    };
-
-    const dataPressure = {
-        labels: labels,
-        datasets: [
-          {
-            label: 'Ciśnienie',
-            data: datasets.pressure, 
-            fill: false,
-            borderColor: 'rgb(75, 192, 192)',
-            tension: 0.1
-          }
-        ]
-    };
-    
     const formatData = (dateString) => {
         
         const newDate = new Date(dateString);
@@ -131,15 +69,96 @@ export default function Station({ stationId, stationName }) {
         return returnString; 
     }
 
+    useEffect(() => {
+        axios.post("http://localhost:5001/get_measurement", {
+            id: stationId
+        }, {
+            withCredentials: true
+        }).then((res) => {
+            if(res.status === 200) {
+                
+                const filteredTemperature = [];
+                const filteredHumidity = [];
+                const filteredPressure = [];
+                const fixedLabales = [];
+
+                res.data.forEach((item) => {
+                    if (isSameDate(item.Czas)) {
+                        filteredTemperature.push(item.Temperatura);
+                        filteredHumidity.push(item.Wilgotność);
+                        filteredPressure.push(item.Ciśnienie);
+                        fixedLabales.push(getTime(item.Czas));
+                    }
+                });
+
+                setDatasets({
+                    temperature: filteredTemperature,
+                    humidity: filteredHumidity,
+                    pressure: filteredPressure
+                });
+
+                setDataStation(res.data);
+                setArrLabels(fixedLabales);
+            }
+        }).catch(error => {
+            if(error.response.status === (400 || 401 || 403 || 500)) {
+                setError(true)
+            }
+        })
+    }, [stationId])
+
+    const dataTemperature = {
+        labels: arrLabels,
+        datasets: [
+          {
+            label: 'Temperatura',
+            data: datasets.temperature, 
+            fill: false,
+            borderColor: 'rgb(75, 192, 192)',
+            tension: 0.1
+          }
+        ]
+    };
+
+    const dataHumidity = {
+        labels: arrLabels,
+        datasets: [
+          {
+            label: 'Wilgotność',
+            data: datasets.humidity, 
+            fill: false,
+            borderColor: 'rgb(75, 192, 192)',
+            tension: 0.1
+          }
+        ]
+    };
+
+    const dataPressure = {
+        labels: arrLabels,
+        datasets: [
+          {
+            label: 'Ciśnienie',
+            data: datasets.pressure, 
+            fill: false,
+            borderColor: 'rgb(75, 192, 192)',
+            tension: 0.1
+          }
+        ]
+    };
+
+    if (error) {
+        return <div>Brak Dostępnych Danych</div>;
+    }
+
     if (!dataStation || dataStation.length === 0) {
-        return <div>Loading...</div>; 
+        return <div>Ładowanie...</div>;
     }
 
     const latestData = dataStation[dataStation.length - 1];
 
     return (
         <div className="station-content">
-            <h1 style={{textAlign: "center", fontSize: "50px"}}>Stacja {stationName}</h1>
+            <h1 style={{textAlign: "center", fontSize: "50px"}}>Stacja {stationName} Miasto {stationCity}</h1>
             <div className="container-station">
                 <div style={{textAlign: "center"}} className="info-station">
                     <p style={{fontWeight: "550", fontSize: "25px"}} >Aktualne Dane</p>
@@ -194,5 +213,4 @@ export default function Station({ stationId, stationName }) {
                 }
             </div>
         </div>
-    )
-};
+    )}

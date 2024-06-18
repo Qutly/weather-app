@@ -5,6 +5,7 @@ import { IoSettingsOutline } from "react-icons/io5";
 import Settings from "../Settings/Settings";
 import Stationformula from '../Stationformula/Stationformula';
 import Removestation from '../Removestation/Removestation';
+import Allstations from '../Allstations/Allstations';
 import { myContext } from '../Context';
 import Station from '../Station/Station';
 import { Icon } from 'leaflet';
@@ -24,10 +25,21 @@ export default function Home() {
 
     const [stationList, setStationList] = useState([]);
     const [preferedStationList, setPreferedStationList] = useState([]);
-    const [stationId, setStationId] = useState(null);
-    const [stationName, setStationName] = useState(null);
-    const [dropdownPosition, setDropdownPosition] = useState({ x: 0, y: 0 });
-    const [showDropdown, setShowDropdown] = useState(false);
+    const [concatArray, setConcatArray] = useState([]);
+
+    const [stationParams, setStationParams] = useState({
+        stationId: null,
+        stationName: null,
+        stationCity: null
+    })
+
+    const [component, setComponent] = useState({
+        settings: false,
+        station: false,
+        allStations: false,
+        addStation: false,
+        removeStation: false
+    });
 
     useEffect(() => {
         axios.get("http://localhost:5001/stations", {
@@ -52,9 +64,20 @@ export default function Home() {
     }, []);
 
     useEffect(() => {
+        setConcatArray(
+            stationList.filter(item =>
+                preferedStationList.some(
+                    station =>
+                        station.StacjaPomiarowaIdUrządzenia === item.IdUrządzenia
+                )
+            )
+        );
+    }, [stationList, preferedStationList])
+
+    useEffect(() => {
         let handler = (e) => {
             if (menuRef.current && !menuRef.current.contains(e.target)) {
-                setComponent({ settings: false, station: false, addStation: false });
+                setComponent({ settings: false, station: false, addStation: false, removeStation: false });
             }
         };
 
@@ -63,13 +86,6 @@ export default function Home() {
         return () => {
             document.removeEventListener("mousedown", handler);
         };
-    });
-
-    const [component, setComponent] = useState({
-        settings: false,
-        station: false,
-        addStation: false,
-        removeStation: false
     });
 
     const logout = () => {
@@ -82,21 +98,9 @@ export default function Home() {
             }
         });
     };
-
-    const handleContextMenu = (e) => {
-        if(ctx.admin) {
-            e.preventDefault();
-            setDropdownPosition({ x: e.clientX, y: e.clientY });
-            setShowDropdown(true);
-        }
-    };
     
-    const handleHideDropdown = () => {
-        setShowDropdown(false);
-    };
-
     return (
-        <div onClick={handleHideDropdown}>
+        <div>
         {component.settings &&
          <div className="modal-background-home">
             <div ref={menuRef} style={{backgroundColor: "#e9e8ed"}} className="modal-container-home">
@@ -107,7 +111,14 @@ export default function Home() {
         {component.station && (
             <div className="modal-background-home">
                 <div ref={menuRef} style={{backgroundColor: "#f0f0f0"}} className="modal-container-home">
-                    <Station stationId={stationId} stationName={stationName}/>
+                    <Station stationId={stationParams.stationId} stationName={stationParams.stationName} stationCity={stationParams.stationCity}/>
+                </div>
+            </div>
+        )}
+        {component.allStations && (
+            <div className="modal-background-home">
+                <div ref={menuRef} style={{backgroundColor: "#f0f0f0"}} className="modal-container-home">
+                    <Allstations concatArray={concatArray}/>
                 </div>
             </div>
         )}
@@ -125,66 +136,55 @@ export default function Home() {
                 </div>
             </div>
         )}
-        <div className={`main-content-home ${component.settings || component.removeStation || component.addStation || component.station ? 'blur' : ''}`}>
+        <div className={`main-content-home ${component.settings || component.removeStation || component.allStations ||component.addStation || component.station ? 'blur' : ''}`}>
         <div style={{fontFamily: "'Montserrat', sans-serif"}}>
         <div className="top-buttons-home">
-            <button onClick={logout} className='button-home'>Wyloguj się</button>
-            <IoSettingsOutline onClick={() => {
-                setComponent({settings: true})
-            }} className='home-settings-icon'/>
+            <div className="left-buttons-home">
+            {ctx.admin ?
+                <>
+                <button onClick={() => {
+                    setComponent({addStation: true})
+                }} className='button-home'>Dodaj Stację</button>
+                <button onClick={() => {
+                    setComponent({removeStation: true})
+                }} className='button-home'>Usuń Stację</button>
+                </>
+            :
+            <></>
+            }
+            </div>
+            <div className="right-buttons-home">
+                <div style={{fontWeight: "600", fontSize: "18px", paddingRight: "1.2rem"}} > 
+                    Zalogowany: {ctx.username}
+                </div>
+                <button onClick={logout} className='button-home'>Wyloguj się</button>
+                <IoSettingsOutline onClick={() => {
+                    setComponent({settings: true})
+                }} className='home-settings-icon'/>
+            </div>
         </div>
         <div className='container-home'>
             <h1 style={{fontWeight: "700", fontSize: "50px"}} className='title-tag-home'>Aplikacja Pogodowa</h1>
             <p className='p-tag-home' style={{color: "#626162", fontSize: "18px"}}>Śledź stacje pomiarowe w całej Polsce</p>
-            <div onContextMenu={handleContextMenu} style={{ width: "96%", height: "50vh", margin: "0 auto", marginBottom: "20px" }}>
+            <div style={{ width: "96%", height: "50vh", margin: "0 auto", marginBottom: "20px" }}>
                 <MapContainer style={{ width: "100%", height: "100%" }} center={[51.9189046, 19.1343786]} zoom={6} scrollWheelZoom={false}>
                     <TileLayer
                         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     />
                     {
-    stationList.map((item, index) => {
-        const isPreferred = preferedStationList.some(station => station.StacjaPomiarowaIdUrządzenia === item.IdUrządzenia && station.Preferowana);    
-        return isPreferred ? (
-            <Marker key={index} position={[item.Koordynata_x, item.Koordyanta_y]} icon={customIcon}>
-                <Popup>
-                    {item.Miasto}, {item.Adres}. <br /> Stacja: {item.NazwaStacji}.
-                </Popup>
-            </Marker>
-        ) : null;
-    })
-}
+            stationList.map((item, index) => {
+                const isPreferred = preferedStationList.some(station => station.StacjaPomiarowaIdUrządzenia === item.IdUrządzenia && station.Preferowana);    
+                return isPreferred ? (
+                    <Marker key={index} position={[item.Koordynata_x, item.Koordyanta_y]} icon={customIcon}>
+                        <Popup>
+                            {item.Miasto}, {item.Adres}. <br /> Stacja: {item.NazwaStacji}.
+                        </Popup>
+                    </Marker>
+                ) : null;
+            })
+        }
                 </MapContainer>
-                {showDropdown && (
-                <div className="dropdown-menu" style={{ backgroundColor: "white", 
-                                                        zIndex: "9999", 
-                                                        color: "black", 
-                                                        borderRadius: "10px",
-                                                        position: 'absolute', 
-                                                        top: dropdownPosition.y, 
-                                                        left: dropdownPosition.x,
-                                                        display: "flex",
-                                                        flexDirection: "column",
-                                                        }}> 
-                    <div onClick={() => {
-                            setComponent({addStation: true})
-                        }} style={{borderBottom: "1px solid #dadce0",
-                                 marginTop: "0.5rem",
-                                 paddingBottom: "0.5rem",
-                                 cursor: "pointer",
-                                 fontSize: "15px"
-                    }}>Dodaj stację pomiarową</div> 
-                    <div onClick={() => {
-                            setComponent({removeStation: true})
-                        }} style={{marginTop: "0.5rem",
-                                 marginBottom: "0.5rem",
-                                 cursor: "pointer",
-                                 marginLeft: "1rem",
-                                 marginRight: "1rem",
-                                 fontSize: "15px"
-                    }} >Usuń stację pomiarową</div>
-                </div>
-                )}
             </div>
         </div>
         <div>
@@ -195,22 +195,36 @@ export default function Home() {
                             const isPreferred = preferedStationList.some(station => station.StacjaPomiarowaIdUrządzenia === item.IdUrządzenia && station.Preferowana);
                             if(isPreferred) {
                                 return (
-                                    <div key={index} className="box-home">
+                                <div key={index} className="box-home">
                                     <div className="content-home">
                                     <p className='station-names-home'>{item.Miasto} {item.Adres}</p>
                                     <p className='station-names-home'>Stacja: {item.NazwaStacji}</p>
                                 </div>
                                 <div onClick={() => {
                                     setComponent({station: true})
-                                    setStationId(item.IdUrządzenia)
-                                    setStationName(item.NazwaStacji)
+                                    setStationParams({
+                                        allStations: false,
+                                        stationId: item.IdUrządzenia,
+                                        stationName: item.NazwaStacji,
+                                        stationCity: item.Miasto
+                                    })
                                 }}className="wizualizacja-box">Wizualizacja
-                            </div>
-                            </div>
+                                </div>
+                                </div>
                                 )
                             }
                         })
                     }
+                    <div className="box-home">
+                                    <div className="content-home">
+                                    <p className='station-names-home'>Wyświetl Wszystkie</p>
+                                    <p className='station-names-home'>Preferowane Stacje</p>
+                                </div>
+                        <div onClick={() => {
+                            setComponent({allStations: true})
+                        }} className="wizualizacja-box">Wizualizacja
+                        </div>
+                    </div>
             </div>
         </div>
         </div>

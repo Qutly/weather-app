@@ -1,7 +1,19 @@
 .top-buttons-home {
     display: flex;
-    justify-content: flex-end; 
+    justify-content: space-between; 
     padding: 10px;
+}
+
+.left-buttons-home {
+    display: flex;
+    align-items: center; 
+    gap: 10px; 
+}
+
+.right-buttons-home {
+    display: flex;
+    align-items: center; 
+    gap: 10px; 
 }
 
 .button-home {

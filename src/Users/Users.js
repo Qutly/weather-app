@@ -22,10 +22,33 @@ export default function Users({ handleToggleUsersModal }) {
             
         });
     };
+
+    const unlockUser = (id) => {
+        axios.post("http://localhost:5001/unlock_user", {
+            userId: id  
+        }, {
+            withCredentials: true  
+        }).then(res => {
+            
+        }).catch(error => {
+            
+        });
+    };
     
     const rankUser = (id) => {
-        console.log(id);
         axios.post("http://localhost:5001/rank_user", {
+            id: id  
+        }, {
+            withCredentials: true 
+        }).then(res => {
+            
+        }).catch(error => {
+    
+        });
+    };
+
+    const degradeUser = (id) => {
+        axios.post("http://localhost:5001/degrade_user", {
             id: id  
         }, {
             withCredentials: true 
@@ -45,7 +68,7 @@ export default function Users({ handleToggleUsersModal }) {
             }
         })   
 
-    },[blockUser, rankUser])
+    },[blockUser, rankUser, degradeUser, unlockUser])
 
     const handleHideDropdown = () => {
         setShowDropdown(false);
@@ -53,13 +76,21 @@ export default function Users({ handleToggleUsersModal }) {
 
     const handleShowDropdown = (event, index) => {
         event.preventDefault();
+    
         const boundingRect = event.target.getBoundingClientRect();
-        const topPosition = boundingRect.bottom + (boundingRect.height / 2) + window.scrollY; 
-        const leftPosition = boundingRect.right; 
+        
+        const topPosition = boundingRect.bottom + (boundingRect.height / 2);
+        
+        const leftPosition = boundingRect.right;
         
         setDropdownPosition({ top: topPosition, left: leftPosition });
+        
         setShowDropdown(index);
     };
+
+    if (!users || users.length === 0) {
+        return <div>Ładowanie...</div>; 
+    }
 
     return (
         <>
@@ -68,14 +99,13 @@ export default function Users({ handleToggleUsersModal }) {
                 <h3>Lista użytkowników</h3>
                 <IoClose onClick={() => handleToggleUsersModal()} style={{cursor: "pointer", fontSize: "25px"}} />
             </div>
-            <div style={{display: "flex", flexDirection: "column"}} >
+            <div style={{display: "flex", flexDirection: "column", maxHeight: "500px", overflowY: "scroll"}} >
             <div style={{color: "#909090", display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: "1px black solid"}}>
                 <p>nazwa użytkownika</p>
                 <p>e-mail</p>
                 <p>opcje</p>
             </div>
             {users.map((item, index) => (
-            !item.Admin && !item.Zablokowany ? (
         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: "1px black solid"}} key={index}>
             <p style={{fontWeight: "550", fontSize: "15px"}} >{item.NazwaUżytkownika}</p>
             <p style={{fontWeight: "550", fontSize: "15px"}}>{item.Email}</p>
@@ -93,26 +123,52 @@ export default function Users({ handleToggleUsersModal }) {
                                                     flexDirection: "column",
                                                 }}> 
                     <IoClose onClick={handleHideDropdown} style={{display: "flex", marginLeft: "auto", cursor: "pointer", fontSize: "20px"}}/>
-                    <div onClick={() => blockUser(item.IdUżytkownika)} style={{borderBottom: "1px solid black",
-                                paddingBottom: "0.5rem",
-                                marginLeft: "1rem",
-                                marginRight: "1rem",
-                                cursor: "pointer",
-                                fontSize: "15px"
-                            }}>Zablokuj użytkownika</div> 
+                    
+                    {item.Zablokowany ?
                     <div onClick={() => {
-                            rankUser(item.IdUżytkownika)
-                        }} style={{marginTop: "0.5rem",
-                                marginBottom: "0.5rem",
-                                cursor: "pointer",
-                                marginLeft: "1rem",
-                                marginRight: "1rem",
-                                fontSize: "15px"
-                            }}>Nadaj rangę administratora</div>
+                        unlockUser(item.IdUżytkownika)
+                    }} style={{borderBottom: "1px solid black",
+                        paddingBottom: "0.5rem",
+                        marginLeft: "1rem",
+                        marginRight: "1rem",
+                        cursor: "pointer",
+                        fontSize: "15px"
+                    }}>Odblokuj użytkownika</div>  
+                    :
+                    <div onClick={() => blockUser(item.IdUżytkownika)} style={{borderBottom: "1px solid black",
+                        paddingBottom: "0.5rem",
+                        marginLeft: "1rem",
+                        marginRight: "1rem",
+                        cursor: "pointer",
+                    fontSize: "15px"
+                    }}>Zablokuj użytkownika</div> 
+                    }
+
+                    {item.Admin ?
+                        <div onClick={() => {
+                            degradeUser(item.IdUżytkownika)
+                        }} style={{
+                        marginTop: "0.5rem",
+                        paddingBottom: "0.5rem",
+                        marginLeft: "1rem",
+                        marginRight: "1rem",
+                        cursor: "pointer",
+                        fontSize: "15px"
+                    }}>Odbierz rangę administratora</div> 
+                    :
+                    <div onClick={() => {
+                        rankUser(item.IdUżytkownika)
+                    }} style={{marginTop: "0.5rem",
+                            marginBottom: "0.5rem",
+                            cursor: "pointer",
+                            marginLeft: "1rem",
+                            marginRight: "1rem",
+                            fontSize: "15px"
+                    }}>Nadaj rangę administratora</div>
+                    }
                 </div>
             )}
         </div>
-    ) : null
 ))}
         </div>
         </div>

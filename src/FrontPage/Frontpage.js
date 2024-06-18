@@ -53,7 +53,7 @@ export default function Frontpage() {
         {component.register &&
          <div className="modal-background">
             <div ref={menuRef} className="modal-container">
-                <Register />
+                <Register setComponent={setComponent} />
             </div>
         </div>
         }

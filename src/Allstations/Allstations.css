@@ -1,0 +1,25 @@
+.container-station-all {
+    display: flex;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.box-station-all { 
+    margin: 10px;
+    min-width: 200px;
+    border-radius: 10px;
+    box-shadow: 1px;
+    padding: 10px;
+    margin-left: 1.5rem;
+    background-color: white;
+}
+
+.box-station-all p {
+    margin: 5px 0; 
+}
+
+.station-content-all {
+    max-width: 1200px;
+    max-height: 500px;
+    overflow-x: scroll;
+}
+

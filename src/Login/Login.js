@@ -22,14 +22,14 @@ export default function Login() {
             password: values.password
         }, {
             withCredentials: true
-        }).then(res => {
-            if(res.data === "Successfully logged in") {
+        }).then((res) => {
+            if(res.status === 200) {
                 window.location.href = "http://localhost:3000/home";
             }
         }).catch(function(error) {
-            if(error.response.data === "Bad Request") {
+            if(error.response.data === 400) {
                 setResponse({ badRequest: true });
-            } else if(error.response.data === "Unauthorized") {
+            } else if(error.response.data === 401) {
                 setResponse({ unauthorized: true });
             }
         });

@@ -69,6 +69,10 @@ export default function Settings() {
         })
     }
 
+    if(!stationList || stationList.length === 0 || !preferedStationList || preferedStationList.length === 0) {
+        return <div>Ładowanie...</div>; 
+    }
+
     return(
         <>
         {showUsersModal && (
@@ -136,8 +140,24 @@ export default function Settings() {
                 <p>N/A</p>
             }
         </div>
+        <div style={{
+                    display: "flex",
+                    justifyContent: "center", 
+                    marginTop: "1rem", 
+                    }}>
+                    <input style={{
+                        marginTop: "1rem",
+                        borderRadius: "10px",
+                        color: "white",
+                        backgroundColor: "black",
+                        padding: "12px",
+                        border: "none",
+                        width: "25%",
+                        cursor: "pointer",
+                    }} onClick={handleUpdateSettings} type='button' value="Zapisz zmiany" />
+                </div>
                     {ctx.admin ?
-                    <div className='settings-manage-users'>
+                    <div style={{marginBottom: "1rem", borderTop: "2px black solid"}} className='settings-manage-users'>
                         <p style={{fontWeight: "550"}} >Zarządzaj użytkownikami: </p>
                         <div onClick={handleToggleUsersModal} style={{backgroundColor: "#87bff2", 
                                      padding: "10px",
@@ -149,22 +169,6 @@ export default function Settings() {
                     :
                     <></>
                     }
-                    <div style={{
-                    display: "flex",
-                    justifyContent: "center", 
-                    marginTop: "2rem", 
-                    }}>
-                    <input style={{
-                        marginTop: "2rem",
-                        borderRadius: "10px",
-                        color: "white",
-                        backgroundColor: "black",
-                        padding: "12px",
-                        border: "none",
-                        width: "25%",
-                        cursor: "pointer",
-                    }} onClick={handleUpdateSettings} type='button' value="Zapisz zmiany" />
-                </div>
             </div>
         </div>
         </>

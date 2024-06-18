@@ -4,7 +4,7 @@ import axios from 'axios';
 
 const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
-export default function Register() {
+export default function Register({setComponent}) {
     
     const [disabled, setDisabled] = useState(true);
 
@@ -27,11 +27,11 @@ export default function Register() {
         }, {
             withCredentials: true
         }).then(res => {
-            if(res.data === "Success") {
+            if(res.status === 200) {
                 setResponse({ success: true });
             }
         }).catch(function(error) {
-            if(error.response.data === "Email or username already exists") {
+            if(error.response.status === 409) {
                 setResponse({ alreadyExists: true });
             }
         })
@@ -79,7 +79,14 @@ export default function Register() {
                     <></>
                 }
                 <input type='email' name="email" placeholder='email@domena.pl' onChange={handleChange} required></input>
-                <input onClick={register} style={disabled ? {backgroundColor: "#4D4D4D"} : {backgroundColor: "black"}} type='button' value="ZAREJESTRUJ SIĘ" disabled={disabled}></input>
+                {response.success ? 
+                    <input onClick={() => {
+                        setComponent({register: false})
+                    }} style={{backgroundColor: "black"}}  type='button' value="ZAMKNIJ OKNO"></input>
+                :
+                    <input onClick={register} style={disabled ? {backgroundColor: "#4D4D4D"} : {backgroundColor: "black"}} type='button' value="ZAREJESTRUJ SIĘ" disabled={disabled}></input>
+                }
+                
             </form>
         </div>
     )
